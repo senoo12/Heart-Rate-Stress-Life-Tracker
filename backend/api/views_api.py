@@ -5,13 +5,7 @@ from rest_framework import status
 from backend.model_loader import load_model
 from api.models_api import *
 
-model = load_model()
-
-label_map = {
-    0: "medium",
-    1: "low",
-    2: "high"
-}
+pipeline, label_map = load_model()
 
 @api_view(["POST"])
 def predict_cluster(request):
@@ -19,11 +13,11 @@ def predict_cluster(request):
         user = request.user_from_device
         data = request.data
 
-        rmssd = float(data.get("rmssd"))
-        sdrr = float(data.get("sdrr"))
-        pnn50 = float(data.get("pnn50"))
-        heart_rate = float(data.get("heart_rate"))
-        spo2 = float(data.get("spo2"))
+        rmssd = float(data["rmssd"])
+        sdrr = float(data["sdrr"])
+        pnn50 = float(data["pnn50"])
+        heart_rate = float(data["heart_rate"])
+        spo2 = float(data["spo2"])
 
         X = [[
             np.log(rmssd),
@@ -33,24 +27,24 @@ def predict_cluster(request):
             np.log(sdrr)
         ]]
 
-        prediction = model.predict(X)[0]
-        mapped_label = label_map[int(prediction)]
+        # PREDIKSI LEWAT PIPELINE (SCALER + GMM)
+        cluster = pipeline.predict(X)[0]
+        label = label_map[int(cluster)]
 
-        # Simpan ke database
         Fisiologis.objects.create(
             rmssd=rmssd,
             sdrr=sdrr,
             pnn50=pnn50,
             heart_rate=heart_rate,
             spo2=spo2,
-            predict_cluster=int(prediction),
-            label=mapped_label,
+            predict_cluster=int(cluster),
+            label=label,
             user_id=user,
         )
 
         return Response({
-            "predicted_cluster": int(prediction),
-            "label": mapped_label
+            "predicted_cluster": int(cluster),
+            "label": label
         })
 
     except Exception as e:

@@ -353,7 +353,7 @@ void DisplayManager::init() {
 	showAnimationIntro();
 }
 
-void DisplayManager::showMessage(String message) {
+void DisplayManager::showMessage(	String message) {
 	display.clearDisplay();
 	display.setCursor(0, 0);
 	display.println(message);

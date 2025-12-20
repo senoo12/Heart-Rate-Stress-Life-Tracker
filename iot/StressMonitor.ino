@@ -1,5 +1,5 @@
-// ESP32 Stress Monitor + LED Blinking + POST ke https://devtunnels.ms (FINAL & SUDAH JALAN)
-// Auth pakai API Key device (espstresslifetracker) — TIDAK PERLU LOGIN / JWT
+// ESP32 Stress Monitor + LED Blinking + POST ke https://devtunnels.ms
+// Auth pakai API Key device (espstresslifetracker)
 
 #define BLYNK_TEMPLATE_ID   "TMPL6QllfqjzJ"
 #define BLYNK_TEMPLATE_NAME "Stress Detection Monitor"
@@ -23,8 +23,8 @@ const char* API_HOST = "https://6865l8g3-8000.asse.devtunnels.ms/api/predict/";
 const char* API_KEY  = "espstresslifetracker";
 
 // WiFi
-char ssid[] = "Warung Solo";
-char pass[] = "budesolo10";
+char ssid[] = "han";
+char pass[] = "iloveyou";
 
 // Objek class
 SensorManager sensorMgr;
@@ -156,7 +156,7 @@ void loop() {
       sensorMgr.freezeValues();
       sendDataToServer(sensorMgr.getBPM(), sensorMgr.getSpO2(), sensorMgr.getRMSSD(), sensorMgr.getSDRR(), sensorMgr.getPNN50());
 
-      bool abnormal = (serverStatusLabel == "high" || serverStatusLabel == "medium");
+      bool abnormal = (serverStatusLabel == "high" || serverStatusLabel == "TIMEOUT" || serverStatusLabel == "ERROR");
 
       if (abnormal) playAlarmSound(); else playSuccessSound();
       sensorMgr.setFinalStatus(serverStatusLabel);
@@ -165,7 +165,7 @@ void loop() {
     // LED indicator
     static bool ledState = false;
     ledState = !ledState;
-    bool abnormal = (serverStatusLabel == "high" || serverStatusLabel == "medium");
+    bool abnormal = (serverStatusLabel == "high" || serverStatusLabel == "TIMEOUT" || serverStatusLabel == "ERROR");
 
     digitalWrite(LED_RED_PIN, sensorMgr.isFrozen() && abnormal && ledState ? HIGH : LOW);
     digitalWrite(LED_GREEN_PIN, sensorMgr.isFrozen() && !abnormal && ledState ? HIGH : LOW);
